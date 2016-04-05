@@ -11,19 +11,44 @@ import XCTest
 
 class DaliTests: XCTestCase {
     
+    var persistence: Persistence?
+    
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        try! persistence = Persistence(databaseName: "dali_tests")
+        persistence?.register("Circle", kind: Circle.self)
+        persistence?.register("Square", kind: Square.self)
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        do {
+            try persistence?.deleteDatabase()
+        } catch {
+            
+        }
+        
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testUnsavedSquare() {
+        let s = Square(side: 3)
+        XCTAssertEqualWithAccuracy(s.area, 9.0, accuracy: 0.001)
+    }
+    
+    func testSavedSquare() throws {
+        let s = Square(side: 3)
+        try persistence?.save(s)
+        let s2: Square? = persistence?.load(s.identifier)
+        XCTAssert(s2 != nil)
+        XCTAssertEqualWithAccuracy(s.area, 9.0, accuracy: 0.001)
+    }
+    
+    func testSavedSquareIsSame() throws {
+        let s = Square(side: 3)
+        try persistence?.save(s)
+        let s2: Square? = persistence?.load(s.identifier)
+        let s3: Square? = persistence?.load(s.identifier)
+        XCTAssert(s2 === s3)
     }
     
     func testPerformanceExample() {

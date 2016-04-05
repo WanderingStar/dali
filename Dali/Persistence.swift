@@ -8,31 +8,35 @@
 
 import Foundation
 
+enum PersistenceError: ErrorType {
+    case NoSuchDocument
+}
+
 class Persistence {
     private let database: CBLDatabase
     private let cache = NSMapTable(keyOptions: .StrongMemory, valueOptions: .WeakMemory)
     private var kinds = [String: Persistable.Type]()
     
-    init?(databaseName: String) {
-        do {
-            database = try CBLManager.sharedInstance().databaseNamed(databaseName)
-        } catch {
-            return nil
-        }
+    init?(databaseName: String) throws {
+        database = try CBLManager.sharedInstance().databaseNamed(databaseName)
+    }
+    
+    func deleteDatabase() throws {
+        try database.deleteDatabase()
     }
     
     func register(kindKey: String, kind: Persistable.Type) {
         kinds[kindKey] = kind
     }
     
-    func load(identifier: String) -> Persistable? {
+    func loadPersistable(identifier: String) -> Persistable? {
         if let object = cache.objectForKey(identifier) {
             return object as? Persistable
         }
         guard let document = database.documentWithID(identifier),
-            kindKey = document.properties?["_kind"] as? String,
+            kindKey = document.properties?["kind"] as? String,
             kind = kinds[kindKey],
-            json = document.properties?["_object"] as? [String: AnyObject],
+            json = document.properties?["data"] as? [String: AnyObject],
             loaded = kind.init(json: json)
             else { return nil }
         
@@ -41,17 +45,24 @@ class Persistence {
     }
     
     func load<T: Persistable>(identifier: String) -> T? {
-        return load(identifier) as? T
+        return loadPersistable(identifier) as? T
     }
     
-    func save(persistable: Persistable) -> Bool {
-        guard let document = database.documentWithID(persistable.identifier) else { return false }
-        var properties = [String: AnyObject]()
-        properties["_kind"] = persistable.kind
-        properties["_object"] = persistable.toJSON()
-        if let _ = try? document.putProperties(properties) {
-            return true
+    func save(persistable: Persistable) throws {
+        if let document = database.documentWithID(persistable.identifier) {
+            var properties = [String: AnyObject]()
+            properties["kind"] = persistable.kind
+            properties["data"] = persistable.toJSON()
+            print(properties)
+            try document.putProperties(properties)
+        } else {
+            throw PersistenceError.NoSuchDocument
         }
-        return false
+    }
+    
+    func delete(persistable: Persistable) throws {
+        if let document = database.documentWithID(persistable.identifier) {
+            try document.deleteDocument()
+        }
     }
 }
