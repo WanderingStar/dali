@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		033DB8F11CB04D4A003B125D /* Persistable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F01CB04D4A003B125D /* Persistable.swift */; };
+		033DB8F31CB04D9D003B125D /* Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F21CB04D9D003B125D /* Shapes.swift */; };
+		033DB8F51CB057BC003B125D /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F41CB057BC003B125D /* Persistence.swift */; };
 		0371FB2F1CB04CC20020B2E4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0371FB2E1CB04CC20020B2E4 /* AppDelegate.swift */; };
 		0371FB311CB04CC20020B2E4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0371FB301CB04CC20020B2E4 /* ViewController.swift */; };
 		0371FB341CB04CC20020B2E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0371FB321CB04CC20020B2E4 /* Main.storyboard */; };
@@ -14,6 +17,7 @@
 		0371FB391CB04CC20020B2E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0371FB371CB04CC20020B2E4 /* LaunchScreen.storyboard */; };
 		0371FB441CB04CC20020B2E4 /* DaliTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0371FB431CB04CC20020B2E4 /* DaliTests.swift */; };
 		0371FB4F1CB04CC20020B2E4 /* DaliUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0371FB4E1CB04CC20020B2E4 /* DaliUITests.swift */; };
+		9697E91DA39DCED8CAA0D138 /* Pods_Dali.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 462D47AB275ABFE51729E71D /* Pods_Dali.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +38,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		033DB8F01CB04D4A003B125D /* Persistable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Persistable.swift; sourceTree = "<group>"; };
+		033DB8F21CB04D9D003B125D /* Shapes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shapes.swift; sourceTree = "<group>"; };
+		033DB8F41CB057BC003B125D /* Persistence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		033DB8F61CB05A52003B125D /* Dali-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Dali-Bridging-Header.h"; sourceTree = "<group>"; };
 		0371FB2B1CB04CC20020B2E4 /* Dali.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dali.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0371FB2E1CB04CC20020B2E4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0371FB301CB04CC20020B2E4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -47,6 +55,9 @@
 		0371FB4A1CB04CC20020B2E4 /* DaliUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DaliUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0371FB4E1CB04CC20020B2E4 /* DaliUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaliUITests.swift; sourceTree = "<group>"; };
 		0371FB501CB04CC20020B2E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		462D47AB275ABFE51729E71D /* Pods_Dali.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dali.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B78731C0C12C6DB45BE1507 /* Pods-Dali.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dali.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Dali/Pods-Dali.debug.xcconfig"; sourceTree = "<group>"; };
+		DCA027F5583859FD535BD243 /* Pods-Dali.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dali.release.xcconfig"; path = "Pods/Target Support Files/Pods-Dali/Pods-Dali.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9697E91DA39DCED8CAA0D138 /* Pods_Dali.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +93,8 @@
 				0371FB421CB04CC20020B2E4 /* DaliTests */,
 				0371FB4D1CB04CC20020B2E4 /* DaliUITests */,
 				0371FB2C1CB04CC20020B2E4 /* Products */,
+				1A24EED716E1D4FC4343F3EA /* Pods */,
+				1E34499442BC35914D5803BF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,6 +117,10 @@
 				0371FB351CB04CC20020B2E4 /* Assets.xcassets */,
 				0371FB371CB04CC20020B2E4 /* LaunchScreen.storyboard */,
 				0371FB3A1CB04CC20020B2E4 /* Info.plist */,
+				033DB8F01CB04D4A003B125D /* Persistable.swift */,
+				033DB8F21CB04D9D003B125D /* Shapes.swift */,
+				033DB8F41CB057BC003B125D /* Persistence.swift */,
+				033DB8F61CB05A52003B125D /* Dali-Bridging-Header.h */,
 			);
 			path = Dali;
 			sourceTree = "<group>";
@@ -125,6 +143,23 @@
 			path = DaliUITests;
 			sourceTree = "<group>";
 		};
+		1A24EED716E1D4FC4343F3EA /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7B78731C0C12C6DB45BE1507 /* Pods-Dali.debug.xcconfig */,
+				DCA027F5583859FD535BD243 /* Pods-Dali.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		1E34499442BC35914D5803BF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				462D47AB275ABFE51729E71D /* Pods_Dali.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -132,9 +167,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0371FB531CB04CC20020B2E4 /* Build configuration list for PBXNativeTarget "Dali" */;
 			buildPhases = (
+				A6C0771CD48518B684A59E09 /* Check Pods Manifest.lock */,
 				0371FB271CB04CC20020B2E4 /* Sources */,
 				0371FB281CB04CC20020B2E4 /* Frameworks */,
 				0371FB291CB04CC20020B2E4 /* Resources */,
+				C6D5860DCD8BEEAABBDF3B5C /* Embed Pods Frameworks */,
+				47A0B92AC2A5488C7EFAFDA8 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -251,13 +289,64 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		47A0B92AC2A5488C7EFAFDA8 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Dali/Pods-Dali-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A6C0771CD48518B684A59E09 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		C6D5860DCD8BEEAABBDF3B5C /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Dali/Pods-Dali-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0371FB271CB04CC20020B2E4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033DB8F11CB04D4A003B125D /* Persistable.swift in Sources */,
 				0371FB311CB04CC20020B2E4 /* ViewController.swift in Sources */,
 				0371FB2F1CB04CC20020B2E4 /* AppDelegate.swift in Sources */,
+				033DB8F31CB04D9D003B125D /* Shapes.swift in Sources */,
+				033DB8F51CB057BC003B125D /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,23 +488,30 @@
 		};
 		0371FB541CB04CC20020B2E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7B78731C0C12C6DB45BE1507 /* Pods-Dali.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Dali/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.EyeOfNewt.Dali;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Dali/Dali-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		0371FB551CB04CC20020B2E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCA027F5583859FD535BD243 /* Pods-Dali.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Dali/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.EyeOfNewt.Dali;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Dali/Dali-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -484,6 +580,7 @@
 				0371FB551CB04CC20020B2E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0371FB561CB04CC20020B2E4 /* Build configuration list for PBXNativeTarget "DaliTests" */ = {
 			isa = XCConfigurationList;
@@ -492,6 +589,7 @@
 				0371FB581CB04CC20020B2E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0371FB591CB04CC20020B2E4 /* Build configuration list for PBXNativeTarget "DaliUITests" */ = {
 			isa = XCConfigurationList;
@@ -500,6 +598,7 @@
 				0371FB5B1CB04CC20020B2E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
