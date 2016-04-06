@@ -101,7 +101,13 @@ class DaliTests: XCTestCase {
             }()
 
         var c1: Circle?
-        XCTAssertThrowsError(c1 = try persistence.load(identifier))
+        do {
+            c1 = try persistence.load(identifier)
+            XCTFail("Should throw")
+        } catch PersistenceError.KindMismatch(let expected, let actual) {
+            XCTAssert(Circle.self == expected)
+            XCTAssert(Square.self == actual)
+        }
         XCTAssertNil(c1)
     }
     
