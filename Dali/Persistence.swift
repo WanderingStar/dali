@@ -8,8 +8,13 @@
 
 import Foundation
 
+typealias JSONDoc = [String: AnyObject]
+
 enum PersistenceError: ErrorType {
     case NoSuchDocument
+    case MalformedDocument(document: JSONDoc?)
+    case UnregisteredKind(kind: String)
+    case KindMismatch(expected: Persistable.Type, actual: Persistable.Type)
 }
 
 class Persistence {
@@ -29,23 +34,30 @@ class Persistence {
         kinds[kindKey] = kind
     }
     
-    func loadPersistable(identifier: String) -> Persistable? {
+    func loadPersistable(identifier: String) throws -> Persistable? {
         if let object = cache.objectForKey(identifier) {
             return object as? Persistable
         }
-        guard let document = database.documentWithID(identifier),
-            kindKey = document.properties?["kind"] as? String,
-            kind = kinds[kindKey],
-            json = document.properties?["data"] as? [String: AnyObject],
-            loaded = kind.init(json: json)
-            else { return nil }
+        guard let document = database.documentWithID(identifier)
+            else { throw PersistenceError.NoSuchDocument }
+        guard let json = document.properties?["data"] as? JSONDoc,
+            kindKey = document.properties?["kind"] as? String
+            else { throw PersistenceError.MalformedDocument(document: document.properties) }
+        guard let kind = kinds[kindKey]
+            else { throw PersistenceError.UnregisteredKind(kind: kindKey) }
+        let loaded = kind.init(json: json)
         
         cache.setObject(loaded, forKey: identifier)
         return loaded
     }
     
-    func load<T: Persistable>(identifier: String) -> T? {
-        return loadPersistable(identifier) as? T
+    func load<T: Persistable>(identifier: String) throws -> T? {
+        guard let loaded = try loadPersistable(identifier) else { return nil }
+        if let loaded = loaded as? T {
+            return loaded
+        } else {
+            throw PersistenceError.KindMismatch(expected: T.self, actual: loaded.dynamicType)
+        }
     }
     
     func save(persistable: Persistable) throws {
@@ -55,6 +67,7 @@ class Persistence {
             properties["data"] = persistable.toJSON()
             print(properties)
             try document.putProperties(properties)
+            cache.setObject(persistable, forKey: persistable.identifier)
         } else {
             throw PersistenceError.NoSuchDocument
         }
@@ -64,5 +77,9 @@ class Persistence {
         if let document = database.documentWithID(persistable.identifier) {
             try document.deleteDocument()
         }
+    }
+    
+    func isCached(identifier: String) -> Bool {
+        return cache.objectForKey(identifier) != nil
     }
 }
