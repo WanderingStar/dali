@@ -102,6 +102,7 @@ class DaliTests: XCTestCase {
 
         var c1: Circle?
         XCTAssertThrowsError(c1 = try persistence.load(identifier))
+        XCTAssertNil(c1)
     }
     
     func testPerformanceExample() {
