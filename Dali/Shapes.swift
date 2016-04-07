@@ -19,16 +19,12 @@ class Shape : Persistable {
     
     init() { print("Init Shape")  }
     
-    required init?(json: JSON) { print("Init Shape from JSON") }
-    
-    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
-    
-    func toJSON() -> JSON? {
-        return [:]
+    required init?(with json: JSON, from persistence: Persistence) throws {
+        print("Init Shape from JSON")
     }
     
     func save(to: Persistence) throws {
-        try to.save(self)
+        try to.save(self, json: [:])
     }
 }
 
@@ -47,19 +43,15 @@ class Square : Shape {
         super.init()
     }
     
-    required init?(json: JSON) {
+    required init?(with json: JSON, from persistence: Persistence) throws {
         print("Init Square from JSON")
         guard let side: Double = "side" <~~ json else { return nil }
         self.side = side
-        super.init(json: json)
+        try super.init(with: json, from: persistence)
     }
-    
-    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
-    
-    override func toJSON() -> JSON? {
-        return jsonify([
-            "side" ~~> side
-            ])
+
+    override func save(to: Persistence) throws {
+        try to.save(self, json: ["side": side])
     }
 }
 
@@ -68,29 +60,26 @@ class Circle : Shape {
     
     let radius: Double
     
+    override var area: Double {
+        return M_PI * radius * radius
+    }
+    
     init(radius: Double) {
         print("Init Circle")
         self.radius = radius
         super.init()
     }
     
-    required init?(json: JSON) {
+    required init?(with json: JSON, from persistence: Persistence) throws {
         print("Init Circle from JSON")
         guard let radius: Double = "radius" <~~ json else { return nil }
         self.radius = radius
-        super.init(json: json)
+        try super.init(with: json, from: persistence)
+
     }
     
-    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
-    
-    override func toJSON() -> JSON? {
-        return jsonify([
-            "radius" ~~> radius
-            ])
-    }
-    
-    override var area: Double {
-        return M_PI * radius * radius
+    override func save(to: Persistence) throws {
+        try to.save(self, json: ["radius": radius])
     }
 }
 
@@ -106,15 +95,7 @@ class VennDiagram : Persistable {
         self.right = right
     }
     
-    required init?(json: JSON) {
-        guard let left: Circle = "left" <~~ json,
-            right: Circle = "right" <~~ json
-            else { return nil }
-        self.left = left
-        self.right = right
-    }
-    
-    required init?(json: JSON, from persistence: Persistence) throws {
+    required init?(with json: JSON, from persistence: Persistence) throws {
         guard let left: Circle = try persistence.resolve("left", json: json),
             right: Circle = try persistence.resolve("right", json: json)
             else { return nil }
@@ -131,11 +112,7 @@ class VennDiagram : Persistable {
     func save(to: Persistence) throws {
         try left.save(to)
         try right.save(to)
-        guard let json = jsonify([
-            "left" ~~> left.identifier,
-            "right" ~~> right.identifier])
-            else { throw PersistenceError.MalformedDocument(document: nil) }
-        try to.save(self, json: json)
+        try to.save(self, json: ["left": left.identifier, "right": right.identifier])
     }
     
 }

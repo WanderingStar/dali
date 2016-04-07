@@ -14,6 +14,7 @@ enum PersistenceError: ErrorType {
     case MalformedDocument(document: JSON?)
     case UnregisteredKind(kind: String)
     case KindMismatch(expected: Persistable.Type, actual: Persistable.Type)
+    case FailedTranslation
 }
 
 class Persistence {
@@ -44,7 +45,7 @@ class Persistence {
             else { throw PersistenceError.MalformedDocument(document: document.properties) }
         guard let kind = kinds[kindKey]
             else { throw PersistenceError.UnregisteredKind(kind: kindKey) }
-        let loaded = try kind.init(json: json, from: self)
+        let loaded = try kind.init(with: json, from: self)
         
         cache.setObject(loaded, forKey: identifier)
         return loaded
@@ -68,19 +69,6 @@ class Persistence {
             return it
         }
         return nil
-    }
-    
-    func save(persistable: Persistable) throws {
-        if let document = database.documentWithID(persistable.identifier) {
-            var properties = [String: AnyObject]()
-            properties["kind"] = persistable.kind
-            properties["data"] = persistable.toJSON()
-            print(properties)
-            try document.putProperties(properties)
-            cache.setObject(persistable, forKey: persistable.identifier)
-        } else {
-            throw PersistenceError.NoSuchDocument
-        }
     }
     
     func save(persistable: Persistable, json: JSON) throws {

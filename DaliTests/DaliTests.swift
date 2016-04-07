@@ -40,7 +40,7 @@ class DaliTests: XCTestCase {
         guard let persistence = persistence else { XCTFail(); return }
         
         let s1 = Square(side: 3)
-        try persistence.save(s1)
+        try s1.save(persistence)
         let s2: Square? = try persistence.load(s1.identifier)
         XCTAssert(s2 != nil)
         XCTAssertEqualWithAccuracy(s1.area, 9.0, accuracy: 0.001)
@@ -50,7 +50,7 @@ class DaliTests: XCTestCase {
         guard let persistence = persistence else { XCTFail(); return }
         
         let s1 = Square(side: 3)
-        try persistence.save(s1)
+        try s1.save(persistence)
         let s2: Square? = try persistence.load(s1.identifier)
         XCTAssert(s1 === s2)
     }
@@ -62,7 +62,7 @@ class DaliTests: XCTestCase {
         let identifier = try  {
             () -> String in
             let s1 = Square(side: 2)
-            try persistence.save(s1)
+            try s1.save(persistence)
             return s1.identifier
         }()
         XCTAssertFalse(persistence.isCached(identifier))
@@ -77,8 +77,8 @@ class DaliTests: XCTestCase {
         let (squareId, circleId) = try { () -> (String, String) in
             let s1 = Square(side: 3)
             let c1 = Circle(radius: 4)
-            try persistence.save(s1)
-            try persistence.save(c1)
+            try s1.save(persistence)
+            try c1.save(persistence)
             return (s1.identifier, c1.identifier)
         }()
         XCTAssertFalse(persistence.isCached(squareId))
@@ -97,7 +97,7 @@ class DaliTests: XCTestCase {
         let identifier = try  {
             () -> String in
             let s1 = Square(side: 2)
-            try persistence.save(s1)
+            try s1.save(persistence)
             return s1.identifier
             }()
 

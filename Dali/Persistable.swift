@@ -9,10 +9,10 @@
 import Foundation
 import Gloss
 
-protocol Persistable : Glossy, AnyObject {
+protocol Persistable : AnyObject { // must be AnyObject so we can cache it
     var kind: String { get }
     var identifier: String { get }
     
-    init?(json: JSON, from persistence: Persistence) throws
+    init?(with json: JSON, from persistence: Persistence) throws
     func save(to: Persistence) throws
 }
