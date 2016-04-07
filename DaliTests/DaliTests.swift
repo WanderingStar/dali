@@ -18,6 +18,7 @@ class DaliTests: XCTestCase {
         try! persistence = Persistence(databaseName: "dali_tests")
         persistence?.register("Circle", kind: Circle.self)
         persistence?.register("Square", kind: Square.self)
+        persistence?.register("VennDiagram", kind: VennDiagram.self)
     }
     
     override func tearDown() {
@@ -109,6 +110,22 @@ class DaliTests: XCTestCase {
             XCTAssert(Square.self == actual)
         }
         XCTAssertNil(c1)
+    }
+    
+    func testNested() throws {
+        guard let persistence = persistence else { XCTFail(); return }
+        
+        let identifier = try {
+            () -> String in
+            let venn = VennDiagram(left: Circle(radius: 3), right: Circle(radius: 4))
+            try venn.save(persistence)
+            return venn.identifier
+            }()
+        
+        let v1: VennDiagram? = try persistence.load(identifier)
+        XCTAssertEqual(v1?.left.radius, 3.0)
+        XCTAssertEqual(v1?.right.radius, 4.0)
+        
     }
     
     func testPerformanceExample() {

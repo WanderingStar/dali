@@ -12,4 +12,7 @@ import Gloss
 protocol Persistable : Glossy, AnyObject {
     var kind: String { get }
     var identifier: String { get }
+    
+    init?(json: JSON, from persistence: Persistence) throws
+    func save(to: Persistence) throws
 }

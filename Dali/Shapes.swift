@@ -13,16 +13,22 @@ class Shape : Persistable {
     var kind: String { return "Shape" }
     let identifier = NSUUID().UUIDString
     
+    var area: Double {
+        return 0.0
+    }
+    
     init() { print("Init Shape")  }
     
     required init?(json: JSON) { print("Init Shape from JSON") }
+    
+    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
     
     func toJSON() -> JSON? {
         return [:]
     }
     
-    var area: Double {
-        return 0.0
+    func save(to: Persistence) throws {
+        try to.save(self)
     }
 }
 
@@ -30,6 +36,10 @@ class Square : Shape {
     override var kind: String { return "Square" }
     
     let side: Double
+    
+    override var area: Double {
+        return side * side
+    }
     
     init(side: Double) {
         print("Init Square") 
@@ -44,14 +54,12 @@ class Square : Shape {
         super.init(json: json)
     }
     
+    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
+    
     override func toJSON() -> JSON? {
         return jsonify([
             "side" ~~> side
             ])
-    }
-    
-    override var area: Double {
-        return side * side
     }
 }
 
@@ -73,6 +81,8 @@ class Circle : Shape {
         super.init(json: json)
     }
     
+    required convenience init?(json: JSON, from persistence: Persistence) throws { self.init(json: json) }
+    
     override func toJSON() -> JSON? {
         return jsonify([
             "radius" ~~> radius
@@ -82,4 +92,50 @@ class Circle : Shape {
     override var area: Double {
         return M_PI * radius * radius
     }
+}
+
+class VennDiagram : Persistable {
+    let kind = "VennDiagram"
+    let identifier = NSUUID().UUIDString
+    
+    let left: Circle
+    let right: Circle
+    
+    init(left: Circle, right: Circle) {
+        self.left = left
+        self.right = right
+    }
+    
+    required init?(json: JSON) {
+        guard let left: Circle = "left" <~~ json,
+            right: Circle = "right" <~~ json
+            else { return nil }
+        self.left = left
+        self.right = right
+    }
+    
+    required init?(json: JSON, from persistence: Persistence) throws {
+        guard let left: Circle = try persistence.resolve("left", json: json),
+            right: Circle = try persistence.resolve("right", json: json)
+            else { return nil }
+        self.left = left
+        self.right = right
+    }
+    
+    func toJSON() -> JSON? {
+        return jsonify([
+            "left" ~~> left,
+            "right" ~~> right])
+    }
+    
+    func save(to: Persistence) throws {
+        try left.save(to)
+        try right.save(to)
+        guard let json = jsonify([
+            "left" ~~> left.identifier,
+            "right" ~~> right.identifier])
+            else { throw PersistenceError.MalformedDocument(document: nil) }
+        try to.save(self, json: json)
+    }
+    
 }

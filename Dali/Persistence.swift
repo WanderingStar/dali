@@ -7,12 +7,11 @@
 //
 
 import Foundation
-
-typealias JSONDoc = [String: AnyObject]
+import Gloss
 
 enum PersistenceError: ErrorType {
     case NoSuchDocument
-    case MalformedDocument(document: JSONDoc?)
+    case MalformedDocument(document: JSON?)
     case UnregisteredKind(kind: String)
     case KindMismatch(expected: Persistable.Type, actual: Persistable.Type)
 }
@@ -40,12 +39,12 @@ class Persistence {
         }
         guard let document = database.documentWithID(identifier)
             else { throw PersistenceError.NoSuchDocument }
-        guard let json = document.properties?["data"] as? JSONDoc,
+        guard let json = document.properties?["data"] as? JSON,
             kindKey = document.properties?["kind"] as? String
             else { throw PersistenceError.MalformedDocument(document: document.properties) }
         guard let kind = kinds[kindKey]
             else { throw PersistenceError.UnregisteredKind(kind: kindKey) }
-        let loaded = kind.init(json: json)
+        let loaded = try kind.init(json: json, from: self)
         
         cache.setObject(loaded, forKey: identifier)
         return loaded
@@ -60,11 +59,35 @@ class Persistence {
         }
     }
     
+    func resolve<T: Persistable>(keyPath: String, json: JSON) throws -> T? {
+        if let it: T = keyPath <~~ json {
+            return it
+        }
+        if let identifier: String = keyPath <~~ json {
+            guard let it: T = try load(identifier) else { return nil }
+            return it
+        }
+        return nil
+    }
+    
     func save(persistable: Persistable) throws {
         if let document = database.documentWithID(persistable.identifier) {
             var properties = [String: AnyObject]()
             properties["kind"] = persistable.kind
             properties["data"] = persistable.toJSON()
+            print(properties)
+            try document.putProperties(properties)
+            cache.setObject(persistable, forKey: persistable.identifier)
+        } else {
+            throw PersistenceError.NoSuchDocument
+        }
+    }
+    
+    func save(persistable: Persistable, json: JSON) throws {
+        if let document = database.documentWithID(persistable.identifier) {
+            var properties = [String: AnyObject]()
+            properties["kind"] = persistable.kind
+            properties["data"] = json
             print(properties)
             try document.putProperties(properties)
             cache.setObject(persistable, forKey: persistable.identifier)
