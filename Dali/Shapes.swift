@@ -96,17 +96,11 @@ class VennDiagram : Persistable {
     }
     
     required init?(with json: JSON, from persistence: Persistence) throws {
-        guard let left: Circle = try persistence.resolve("left", json: json),
-            right: Circle = try persistence.resolve("right", json: json)
+        guard let left: Circle = try persistence.load("left" <~~ json),
+            right: Circle = try persistence.load("right" <~~ json)
             else { return nil }
         self.left = left
         self.right = right
-    }
-    
-    func toJSON() -> JSON? {
-        return jsonify([
-            "left" ~~> left,
-            "right" ~~> right])
     }
     
     func save(to: Persistence) throws {

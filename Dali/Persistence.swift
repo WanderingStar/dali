@@ -51,24 +51,14 @@ class Persistence {
         return loaded
     }
     
-    func load<T: Persistable>(identifier: String) throws -> T? {
+    func load<T: Persistable>(identifier: String?) throws -> T? {
+        guard let identifier = identifier else { return nil }
         guard let loaded = try loadPersistable(identifier) else { return nil }
         if let loaded = loaded as? T {
             return loaded
         } else {
             throw PersistenceError.KindMismatch(expected: T.self, actual: loaded.dynamicType)
         }
-    }
-    
-    func resolve<T: Persistable>(keyPath: String, json: JSON) throws -> T? {
-        if let it: T = keyPath <~~ json {
-            return it
-        }
-        if let identifier: String = keyPath <~~ json {
-            guard let it: T = try load(identifier) else { return nil }
-            return it
-        }
-        return nil
     }
     
     func save(persistable: Persistable, json: JSON) throws {
