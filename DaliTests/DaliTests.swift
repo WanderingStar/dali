@@ -16,9 +16,10 @@ class DaliTests: XCTestCase {
     override func setUp() {
         super.setUp()
         try! persistence = Persistence(databaseName: "dali_tests")
-        persistence?.register("Circle", kind: Circle.self)
-        persistence?.register("Square", kind: Square.self)
-        persistence?.register("VennDiagram", kind: VennDiagram.self)
+        persistence?.register(Circle.self)
+        persistence?.register(Square.self)
+        persistence?.register(VennDiagram.self)
+        persistence?.register(LazySquare.self)
     }
     
     override func tearDown() {
@@ -126,6 +127,24 @@ class DaliTests: XCTestCase {
         XCTAssertEqual(v1?.left.radius, 3.0)
         XCTAssertEqual(v1?.right.radius, 4.0)
         
+    }
+    
+    func testLazy() throws {
+        guard let persistence = persistence else { XCTFail(); return }
+
+        let (squareIdentifier, lazyIdentifier) = try {
+            () -> (String, String) in
+            let square = Square(side: 5.0)
+            let lazy = LazySquare(square: square)
+            try lazy.save(persistence)
+            return (square.identifier, lazy.identifier)
+        }()
+        
+        XCTAssertFalse(persistence.isCached(lazyIdentifier))
+        let l1: LazySquare? = try persistence.load(lazyIdentifier)
+        XCTAssertFalse(persistence.isCached(squareIdentifier))
+        XCTAssertEqual(l1?.square?.area, 25.0)
+        XCTAssertTrue(persistence.isCached(squareIdentifier))
     }
     
     func testPerformanceExample() {

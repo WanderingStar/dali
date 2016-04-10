@@ -17,6 +17,14 @@ enum PersistenceError: ErrorType {
     case FailedTranslation
 }
 
+protocol Persistable : AnyObject { // must be AnyObject so we can cache it
+    static var kind: String { get }
+    var identifier: String { get }
+    
+    init?(with json: JSON, from persistence: Persistence) throws
+    func save(to: Persistence) throws
+}
+
 class Persistence {
     private let database: CBLDatabase
     private let cache = NSMapTable(keyOptions: .StrongMemory, valueOptions: .WeakMemory)
@@ -30,8 +38,8 @@ class Persistence {
         try database.deleteDatabase()
     }
     
-    func register(kindKey: String, kind: Persistable.Type) {
-        kinds[kindKey] = kind
+    func register(persistableKind: Persistable.Type) {
+        kinds[persistableKind.kind] = persistableKind
     }
     
     func loadPersistable(identifier: String) throws -> Persistable? {
@@ -64,7 +72,7 @@ class Persistence {
     func save(persistable: Persistable, json: JSON) throws {
         if let document = database.documentWithID(persistable.identifier) {
             var properties = [String: AnyObject]()
-            properties["kind"] = persistable.kind
+            properties["kind"] = persistable.dynamicType.kind
             properties["data"] = json
             print(properties)
             try document.putProperties(properties)

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		033DB8F11CB04D4A003B125D /* Persistable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F01CB04D4A003B125D /* Persistable.swift */; };
 		033DB8F31CB04D9D003B125D /* Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F21CB04D9D003B125D /* Shapes.swift */; };
 		033DB8F51CB057BC003B125D /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033DB8F41CB057BC003B125D /* Persistence.swift */; };
 		0371FB2F1CB04CC20020B2E4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0371FB2E1CB04CC20020B2E4 /* AppDelegate.swift */; };
@@ -38,7 +37,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		033DB8F01CB04D4A003B125D /* Persistable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Persistable.swift; sourceTree = "<group>"; };
 		033DB8F21CB04D9D003B125D /* Shapes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shapes.swift; sourceTree = "<group>"; };
 		033DB8F41CB057BC003B125D /* Persistence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		033DB8F61CB05A52003B125D /* Dali-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Dali-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -117,7 +115,6 @@
 				0371FB351CB04CC20020B2E4 /* Assets.xcassets */,
 				0371FB371CB04CC20020B2E4 /* LaunchScreen.storyboard */,
 				0371FB3A1CB04CC20020B2E4 /* Info.plist */,
-				033DB8F01CB04D4A003B125D /* Persistable.swift */,
 				033DB8F21CB04D9D003B125D /* Shapes.swift */,
 				033DB8F41CB057BC003B125D /* Persistence.swift */,
 				033DB8F61CB05A52003B125D /* Dali-Bridging-Header.h */,
@@ -342,7 +339,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				033DB8F11CB04D4A003B125D /* Persistable.swift in Sources */,
 				0371FB311CB04CC20020B2E4 /* ViewController.swift in Sources */,
 				0371FB2F1CB04CC20020B2E4 /* AppDelegate.swift in Sources */,
 				033DB8F31CB04D9D003B125D /* Shapes.swift in Sources */,

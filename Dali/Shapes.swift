@@ -10,7 +10,7 @@ import Foundation
 import Gloss
 
 class Shape : Persistable {
-    var kind: String { return "Shape" }
+    class var kind: String { return "Shape" }
     let identifier = NSUUID().UUIDString
     
     var area: Double {
@@ -29,7 +29,7 @@ class Shape : Persistable {
 }
 
 class Square : Shape {
-    override var kind: String { return "Square" }
+    override class var kind: String { return "Square" }
     
     let side: Double
     
@@ -56,7 +56,7 @@ class Square : Shape {
 }
 
 class Circle : Shape {
-    override var kind: String { return "Circle" }
+    override class var kind: String { return "Circle" }
     
     let radius: Double
     
@@ -83,8 +83,8 @@ class Circle : Shape {
     }
 }
 
-class VennDiagram : Persistable {
-    let kind = "VennDiagram"
+final class VennDiagram : Persistable {
+    static let kind = "VennDiagram"
     let identifier = NSUUID().UUIDString
     
     let left: Circle
@@ -110,3 +110,38 @@ class VennDiagram : Persistable {
     }
     
 }
+
+final class LazySquare : Persistable {
+    static let kind = "LazySquare"
+    let identifier = NSUUID().UUIDString
+    
+    private weak var persistence: Persistence?
+    private var squareIdentifier: String?
+    lazy var square: Square? = try! self.persistence?.load(self.squareIdentifier)
+    
+    init(square: Square) {
+        self.square = square
+    }
+    
+    required init?(with json: JSON, from persistence: Persistence) throws {
+        self.persistence = persistence
+        self.squareIdentifier = "square" <~~ json
+    }
+    
+    func save(to: Persistence) throws {
+        if let square = square {
+            try square.save(to)
+            try to.save(self, json: ["square": square.identifier])
+        } else {
+            try to.save(self, json: [:])
+        }
+    }
+}
+
+
+
+
+
+
+
+
