@@ -157,13 +157,14 @@ final class Chain : Persistable {
     }
     
     func save(to: Transaction) throws {
-        if to.seen.contains(self.identifier) { return }
-        try link.save(to)
-        if let next = next {
-            try to.save(self, json: ["link": link.identifier, "next": next.identifier])
-            try next.save(to)
-        } else {
-            try to.save(self, json: ["link": link.identifier])
+        if to.needsSave(self) {
+            try link.save(to)
+            if let next = next {
+                try to.save(self, json: ["link": link.identifier, "next": next.identifier])
+                try next.save(to)
+            } else {
+                try to.save(self, json: ["link": link.identifier])
+            }
         }
     }
 }

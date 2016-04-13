@@ -94,20 +94,22 @@ class Persistence {
 }
 
 class Transaction {
-    let persistence: Persistence
-    var seen = Set<String>()
+    private let persistence: Persistence
+    private var seen = Set<String>()
     
     init(on: Persistence) {
         persistence = on
     }
     
-    func save(persistable: Persistable, json: JSON) throws -> Bool {
-        if seen.contains(persistable.identifier) {
-            return false
+    func needsSave(persistable: Persistable) -> Bool {
+        return !seen.contains(persistable.identifier)
+    }
+    
+    func save(persistable: Persistable, json: JSON) throws {
+        if needsSave(persistable) {
+            seen.insert(persistable.identifier)
+            try persistence.save(persistable, json: json)
         }
-        seen.insert(persistable.identifier)
-        try persistence.save(persistable, json: json)
-        return true
     }
     
 }
