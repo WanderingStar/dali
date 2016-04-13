@@ -22,7 +22,7 @@ protocol Persistable : AnyObject { // must be AnyObject so we can cache it
     var identifier: String { get }
     
     init?(with json: JSON, from persistence: Persistence) throws
-    func save(to: Persistence) throws
+    func save(to: Transaction) throws
 }
 
 class Persistence {
@@ -91,4 +91,23 @@ class Persistence {
     func isCached(identifier: String) -> Bool {
         return cache.objectForKey(identifier) != nil
     }
+}
+
+class Transaction {
+    let persistence: Persistence
+    var seen = Set<String>()
+    
+    init(on: Persistence) {
+        persistence = on
+    }
+    
+    func save(persistable: Persistable, json: JSON) throws -> Bool {
+        if seen.contains(persistable.identifier) {
+            return false
+        }
+        seen.insert(persistable.identifier)
+        try persistence.save(persistable, json: json)
+        return true
+    }
+    
 }

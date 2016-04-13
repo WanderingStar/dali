@@ -23,7 +23,7 @@ class Shape : Persistable {
         print("Init Shape from JSON")
     }
     
-    func save(to: Persistence) throws {
+    func save(to: Transaction) throws {
         try to.save(self, json: [:])
     }
 }
@@ -50,7 +50,7 @@ class Square : Shape {
         try super.init(with: json, from: persistence)
     }
 
-    override func save(to: Persistence) throws {
+    override func save(to: Transaction) throws {
         try to.save(self, json: ["side": side])
     }
 }
@@ -78,7 +78,7 @@ class Circle : Shape {
 
     }
     
-    override func save(to: Persistence) throws {
+    override func save(to: Transaction) throws {
         try to.save(self, json: ["radius": radius])
     }
 }
@@ -103,7 +103,7 @@ final class VennDiagram : Persistable {
         self.right = right
     }
     
-    func save(to: Persistence) throws {
+    func save(to: Transaction) throws {
         try left.save(to)
         try right.save(to)
         try to.save(self, json: ["left": left.identifier, "right": right.identifier])
@@ -128,7 +128,7 @@ final class LazySquare : Persistable {
         self.squareIdentifier = "square" <~~ json
     }
     
-    func save(to: Persistence) throws {
+    func save(to: Transaction) throws {
         if let square = square {
             try square.save(to)
             try to.save(self, json: ["square": square.identifier])
@@ -138,8 +138,35 @@ final class LazySquare : Persistable {
     }
 }
 
-
-
+final class Chain : Persistable {
+    static let kind = "Chain"
+    let identifier = NSUUID().UUIDString
+    
+    let link: Circle
+    var next: Chain?
+    
+    init(link: Circle) {
+        self.link = link
+    }
+    
+    required init?(with json: JSON, from persistence: Persistence) throws {
+        guard let link: Circle = try persistence.load("link" <~~ json)
+            else { return nil }
+        self.link = link
+        self.next = try persistence.load("next" <~~ json)
+    }
+    
+    func save(to: Transaction) throws {
+        if to.seen.contains(self.identifier) { return }
+        try link.save(to)
+        if let next = next {
+            try to.save(self, json: ["link": link.identifier, "next": next.identifier])
+            try next.save(to)
+        } else {
+            try to.save(self, json: ["link": link.identifier])
+        }
+    }
+}
 
 
 
