@@ -29,9 +29,18 @@ class Persistence {
     private let database: CBLDatabase
     private let cache = NSMapTable(keyOptions: .StrongMemory, valueOptions: .WeakMemory)
     private var kinds = [String: Persistable.Type]()
+    private let kindView: CBLView
     
     init?(databaseName: String) throws {
         database = try CBLManager.sharedInstance().databaseNamed(databaseName)
+        
+        kindView = database.viewNamed("kind")
+        kindView.setMapBlock({
+            (doc, emit) in
+            if let kind = doc["kind"] as? String {
+                emit(kind, doc["data"])
+            }
+            }, version: "1")
     }
     
     func deleteDatabase() throws {
@@ -90,6 +99,26 @@ class Persistence {
     
     func isCached(identifier: String) -> Bool {
         return cache.objectForKey(identifier) != nil
+    }
+    
+    func loadAll<T: Persistable>() throws -> AnyGenerator<T> {
+        guard let kind = kinds[T.kind] else { throw PersistenceError.UnregisteredKind(kind: T.kind) }
+        let query = kindView.createQuery()
+        query.startKey = T.kind
+        query.endKey = T.kind
+        let result = try query.run()
+        return AnyGenerator<T> {
+            guard let row = result.nextRow() else { return nil }
+            if let object = self.cache.objectForKey(row.documentID) {
+                return object as? T
+            }
+            guard let json = row.value as? JSON,
+                object = try? kind.init(with: json, from: self) as? T
+                else { return nil }
+            self.cache.setObject(object, forKey: row.documentID)
+            return object
+        }
+        
     }
 }
 

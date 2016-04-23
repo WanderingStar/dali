@@ -193,4 +193,35 @@ class DaliTests: XCTestCase {
         XCTAssertEqual(link1?.next?.next?.link.radius, 1.0)
     }
     
+    func testLoadAll() throws {
+        guard let persistence = persistence else { XCTFail(); return }
+        
+        try {
+            let transaction = Transaction(on: persistence)
+            for i in 1...100 {
+                try Square(side: Double(i)).save(transaction)
+                try Circle(radius: Double(i)).save(transaction)
+            }
+        }()
+        var seen = Set<Double>()
+        if let squares: AnyGenerator<Square> = try persistence.loadAll() {
+            for square in squares {
+                seen.insert(square.side)
+            }
+        }
+        for i in 1...100 {
+            XCTAssertTrue(seen.contains(Double(i)))
+        }
+    }
+    
+    func testLoadAllCachedSame() throws {
+        guard let persistence = persistence else { XCTFail(); return }
+        
+        let square = Square(side: 3)
+        try square.save(Transaction(on: persistence))
+        
+        guard let squares: AnyGenerator<Square> = try persistence.loadAll()  else { XCTFail(); return }
+        XCTAssertTrue(square === squares.next())
+    }
+    
 }
