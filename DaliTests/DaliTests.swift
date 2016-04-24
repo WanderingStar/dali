@@ -204,10 +204,8 @@ class DaliTests: XCTestCase {
             }
         }()
         var seen = Set<Double>()
-        if let squares: AnyGenerator<Square> = try persistence.loadAll() {
-            for square in squares {
-                seen.insert(square.side)
-            }
+        for square in try persistence.loadAll(Square.self) {
+            seen.insert(square.side)
         }
         for i in 1...100 {
             XCTAssertTrue(seen.contains(Double(i)))
@@ -220,7 +218,7 @@ class DaliTests: XCTestCase {
         let square = Square(side: 3)
         try square.save(Transaction(on: persistence))
         
-        guard let squares: AnyGenerator<Square> = try persistence.loadAll()  else { XCTFail(); return }
+        let squares = try persistence.loadAll(Square.self)
         XCTAssertTrue(square === squares.next())
     }
     

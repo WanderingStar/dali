@@ -13,7 +13,7 @@ enum PersistenceError: ErrorType {
     case NoSuchDocument
     case MalformedDocument(document: JSON?)
     case UnregisteredKind(kind: String)
-    case KindMismatch(expected: Persistable.Type, actual: Persistable.Type)
+    case KindMismatch(expected: Persistable.Type, actual: AnyObject.Type)
     case FailedTranslation
 }
 
@@ -38,9 +38,9 @@ class Persistence {
         kindView.setMapBlock({
             (doc, emit) in
             if let kind = doc["kind"] as? String {
-                emit(kind, doc["data"])
+                emit(kind, doc)
             }
-            }, version: "1")
+            }, version: "2")
     }
     
     func deleteDatabase() throws {
@@ -49,6 +49,18 @@ class Persistence {
     
     func register(persistableKind: Persistable.Type) {
         kinds[persistableKind.kind] = persistableKind
+    }
+    
+    private func instantiate(identifier: String, kind key: String, json: JSON) throws -> Persistable? {
+        guard let kind = kinds[key]
+            else { throw PersistenceError.UnregisteredKind(kind: key) }
+        if let object = cache.objectForKey(identifier) {
+            return object as? Persistable
+        }
+        guard let object = try kind.init(with: json, from: self)
+            else { return nil }
+        cache.setObject(object, forKey: identifier)
+        return object
     }
     
     func loadPersistable(identifier: String) throws -> Persistable? {
@@ -60,12 +72,7 @@ class Persistence {
         guard let json = document.properties?["data"] as? JSON,
             kindKey = document.properties?["kind"] as? String
             else { throw PersistenceError.MalformedDocument(document: document.properties) }
-        guard let kind = kinds[kindKey]
-            else { throw PersistenceError.UnregisteredKind(kind: kindKey) }
-        let loaded = try kind.init(with: json, from: self)
-        
-        cache.setObject(loaded, forKey: identifier)
-        return loaded
+        return try instantiate(identifier, kind: kindKey, json: json)
     }
     
     func load<T: Persistable>(identifier: String?) throws -> T? {
@@ -101,24 +108,39 @@ class Persistence {
         return cache.objectForKey(identifier) != nil
     }
     
-    func loadAll<T: Persistable>() throws -> AnyGenerator<T> {
-        guard let kind = kinds[T.kind] else { throw PersistenceError.UnregisteredKind(kind: T.kind) }
-        let query = kindView.createQuery()
-        query.startKey = T.kind
-        query.endKey = T.kind
-        let result = try query.run()
-        return AnyGenerator<T> {
-            guard let row = result.nextRow() else { return nil }
-            if let object = self.cache.objectForKey(row.documentID) {
-                return object as? T
+    func loadResults(result: CBLQueryEnumerator) throws -> AnyGenerator<Persistable> {
+        return AnyGenerator<Persistable> {
+            while let row = result.nextRow() {
+                guard let identifier = row.documentID,
+                    document = row.value as? JSON,
+                    kind = document["kind"] as? String,
+                    json = document["data"] as? JSON,
+                    object = try? self.instantiate(identifier, kind: kind, json: json)
+                    else { continue } // skip invalid documents, if any
+                return object
             }
-            guard let json = row.value as? JSON,
-                object = try? kind.init(with: json, from: self) as? T
-                else { return nil }
-            self.cache.setObject(object, forKey: row.documentID)
-            return object
+            return nil
         }
-        
+    }
+    
+    func loadAllOfKind(kindKey: String) throws -> AnyGenerator<Persistable> {
+        let query = kindView.createQuery()
+        query.startKey = kindKey
+        query.endKey = kindKey
+        let result = try query.run()
+        return try loadResults(result)
+    }
+    
+    func loadAll<T: Persistable>(kind: T.Type) throws -> AnyGenerator<T> {
+        let results = try loadAllOfKind(T.kind)
+        return AnyGenerator<T> {
+            while let object = results.next() {
+                if let object = object as? T {
+                    return object
+                }
+            }
+            return nil
+        }
     }
 }
 
