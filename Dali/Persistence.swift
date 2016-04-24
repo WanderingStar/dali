@@ -123,16 +123,11 @@ class Persistence {
         }
     }
     
-    func loadAllOfKind(kindKey: String) throws -> AnyGenerator<Persistable> {
-        let query = kindView.createQuery()
-        query.startKey = kindKey
-        query.endKey = kindKey
-        let result = try query.run()
-        return try loadResults(result)
-    }
-    
     func loadAll<T: Persistable>(kind: T.Type) throws -> AnyGenerator<T> {
-        let results = try loadAllOfKind(T.kind)
+        let query = kindView.createQuery()
+        query.startKey = kind.kind
+        query.endKey = kind.kind
+        let results = try loadResults(query.run())
         return AnyGenerator<T> {
             while let object = results.next() {
                 if let object = object as? T {
