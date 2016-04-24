@@ -43,6 +43,10 @@ class Persistence {
             }, version: "2")
     }
     
+    func viewNamed(name: String) -> CBLView {
+        return database.viewNamed(name)
+    }
+    
     func deleteDatabase() throws {
         try database.deleteDatabase()
     }
