@@ -198,17 +198,17 @@ class DaliTests: XCTestCase {
         
         try {
             let transaction = Transaction(on: persistence)
-            for i in 1...100 {
-                try Square(side: Double(i)).save(transaction)
-                try Circle(radius: Double(i)).save(transaction)
+            for d in 1.0.stride(to: 100.0, by: 1.0) {
+                try Square(side: d).save(transaction)
+                try Circle(radius: d).save(transaction)
             }
         }()
         var seen = Set<Double>()
         for square in try persistence.loadAll(Square.self) {
             seen.insert(square.side)
         }
-        for i in 1...100 {
-            XCTAssertTrue(seen.contains(Double(i)))
+        for d in 1.0.stride(to: 100.0, by: 1.0) {
+            XCTAssertTrue(seen.contains(d))
         }
     }
     
@@ -220,6 +220,24 @@ class DaliTests: XCTestCase {
         
         let squares = try persistence.loadAll(Square.self)
         XCTAssertTrue(square === squares.next())
+    }
+    
+    func testLoadAllLazy() throws {
+        guard let persistence = persistence else { XCTFail(); return }
+        
+        let identfier = try {
+            () -> String in
+            let square = Square(side: 3)
+            try square.save(Transaction(on: persistence))
+            return square.identifier
+            }()
+        
+        XCTAssertFalse(persistence.isCached(identfier))
+        let squares = try persistence.loadAll(Square.self)
+        XCTAssertFalse(persistence.isCached(identfier))
+        let square = squares.next()
+        XCTAssertEqual(square?.side, 3.0)
+        XCTAssertTrue(persistence.isCached(identfier))
     }
     
 }
