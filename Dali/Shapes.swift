@@ -22,10 +22,6 @@ class Shape : Persistable {
     required init?(with json: JSON, from persistence: Persistence) throws {
         print("Init Shape from JSON")
     }
-    
-    func save(to: Transaction) throws {
-        try to.save(self, json: [:])
-    }
 }
 
 class Square : Shape {
@@ -48,10 +44,6 @@ class Square : Shape {
         guard let side: Double = "side" <~~ json else { return nil }
         self.side = side
         try super.init(with: json, from: persistence)
-    }
-
-    override func save(to: Transaction) throws {
-        try to.save(self, json: ["side": side])
     }
 }
 
@@ -77,10 +69,6 @@ class Circle : Shape {
         try super.init(with: json, from: persistence)
 
     }
-    
-    override func save(to: Transaction) throws {
-        try to.save(self, json: ["radius": radius])
-    }
 }
 
 final class VennDiagram : Persistable {
@@ -102,13 +90,6 @@ final class VennDiagram : Persistable {
         self.left = left
         self.right = right
     }
-    
-    func save(to: Transaction) throws {
-        try left.save(to)
-        try right.save(to)
-        try to.save(self, json: ["left": left.identifier, "right": right.identifier])
-    }
-    
 }
 
 final class LazySquare : Persistable {
@@ -126,15 +107,6 @@ final class LazySquare : Persistable {
     required init?(with json: JSON, from persistence: Persistence) throws {
         self.persistence = persistence
         self.squareIdentifier = "square" <~~ json
-    }
-    
-    func save(to: Transaction) throws {
-        if let square = square {
-            try square.save(to)
-            try to.save(self, json: ["square": square.identifier])
-        } else {
-            try to.save(self, json: [:])
-        }
     }
 }
 
@@ -154,18 +126,6 @@ final class Chain : Persistable {
             else { return nil }
         self.link = link
         self.next = try persistence.load("next" <~~ json)
-    }
-    
-    func save(to: Transaction) throws {
-        if to.needsSave(self) {
-            try link.save(to)
-            if let next = next {
-                try to.save(self, json: ["link": link.identifier, "next": next.identifier])
-                try next.save(to)
-            } else {
-                try to.save(self, json: ["link": link.identifier])
-            }
-        }
     }
 }
 

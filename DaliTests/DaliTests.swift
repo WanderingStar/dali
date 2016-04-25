@@ -240,4 +240,13 @@ class DaliTests: XCTestCase {
         XCTAssertTrue(persistence.isCached(identfier))
     }
     
+    func testIgnore() {
+        XCTFail("Implement Me")
+    }
+
+    func testMap() {
+        XCTFail("Implement Me")
+    }
+
+    
 }

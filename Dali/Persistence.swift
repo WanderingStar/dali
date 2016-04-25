@@ -15,6 +15,8 @@ enum PersistenceError: ErrorType {
     case UnregisteredKind(kind: String)
     case KindMismatch(expected: Persistable.Type, actual: AnyObject.Type)
     case FailedTranslation
+    case EncodingFailure(label: String)
+    case NotEncodable(label: String?, value: Any)
 }
 
 protocol Persistable : AnyObject { // must be AnyObject so we can cache it
@@ -23,6 +25,57 @@ protocol Persistable : AnyObject { // must be AnyObject so we can cache it
     
     init?(with json: JSON, from persistence: Persistence) throws
     func save(to: Transaction) throws
+}
+
+extension Persistable {
+    // anything mapped to nil will not be persisted
+    var propertyMapping: [String: String?] {
+        return [
+            "propertyMapping": nil,
+            "kind": nil,
+            "identifier": nil
+        ]
+    }
+    
+    func save(to: Transaction) throws {
+        guard to.needsSave(self) else { return }
+        
+        let mirror = Mirror(reflecting: self)
+        
+        var json: JSON = [:]
+        var referenced = [Persistable]()
+        for (label, value) in mirror.children {
+            guard var label = label else {
+                throw PersistenceError.NotEncodable(label: nil, value: value)
+            }
+            if let mapped = propertyMapping[label] {
+                guard let mapped = mapped else { continue }
+                label = mapped
+            }
+            var value = value
+            if let optional = value as? OptionalProtocol {
+                if optional.isSome() {
+                    value = optional.unwrap()
+                } else {
+                    value = NSNull()
+                }
+            }
+            if let persistable = value as? Persistable {
+                referenced.append(persistable)
+                json[label] = persistable.identifier // TODO: implement key paths
+            } else {
+                guard let encoded = label ~~> value else {
+                    throw PersistenceError.EncodingFailure(label: label)
+                }
+                json.add(encoded)
+            }
+        }
+        // save this first, to prevent loops
+        try to.save(self, json: json)
+        for other in referenced {
+            try other.save(to)
+        }
+    }
 }
 
 class Persistence {
