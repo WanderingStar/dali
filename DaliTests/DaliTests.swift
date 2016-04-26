@@ -191,6 +191,7 @@ class DaliTests: XCTestCase {
         XCTAssertEqual(link1?.link.radius, 1.0)
         XCTAssertEqual(link1?.next?.link.radius, 2.0)
         XCTAssertEqual(link1?.next?.next?.link.radius, 1.0)
+        XCTAssertTrue(link1 === link1?.next?.next)
     }
     
     func testLoadAll() throws {

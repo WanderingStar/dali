@@ -17,6 +17,7 @@ enum PersistenceError: ErrorType {
     case FailedTranslation
     case EncodingFailure(label: String)
     case NotEncodable(label: String?, value: Any)
+    case LazyNotOptional(label: String)
 }
 
 protocol Persistable : AnyObject { // must be AnyObject so we can cache it
@@ -24,22 +25,27 @@ protocol Persistable : AnyObject { // must be AnyObject so we can cache it
     var identifier: String { get }
     
     init?(with json: JSON, from persistence: Persistence) throws
+    var propertyMapping: [String: String?] { get }
     func save(to: Transaction) throws
 }
 
 extension Persistable {
-    // anything mapped to nil will not be persisted
-    var propertyMapping: [String: String?] {
+    var defaultPropertyMapping: [String: String?] {
         return [
             "propertyMapping": nil,
             "kind": nil,
-            "identifier": nil
-        ]
+            "identifier": nil]
+    }
+    
+    // anything mapped to nil will not be persisted
+    var propertyMapping: [String: String?] {
+        return defaultPropertyMapping
     }
     
     func save(to: Transaction) throws {
         guard to.needsSave(self) else { return }
         
+        let mapping = propertyMapping
         let mirror = Mirror(reflecting: self)
         
         var json: JSON = [:]
@@ -48,11 +54,21 @@ extension Persistable {
             guard var label = label else {
                 throw PersistenceError.NotEncodable(label: nil, value: value)
             }
-            if let mapped = propertyMapping[label] {
+            var value = value
+            if label.hasSuffix(".storage") { // HACK - lazy stored properties seem to have this
+                label = label.substringToIndex(label.endIndex.advancedBy(-".storage".length))
+                guard let optional = value as? OptionalProtocol
+                    else { throw PersistenceError.LazyNotOptional(label: label) }
+                if optional.isSome() {
+                    value = optional.unwrap()
+                } else {
+                    value = NSNull()
+                }
+            }
+            if let mapped = mapping[label] {
                 guard let mapped = mapped else { continue }
                 label = mapped
             }
-            var value = value
             if let optional = value as? OptionalProtocol {
                 if optional.isSome() {
                     value = optional.unwrap()
@@ -124,11 +140,12 @@ class Persistence {
         if let object = cache.objectForKey(identifier) {
             return object as? Persistable
         }
-        guard let document = database.documentWithID(identifier)
+        guard let document = database.documentWithID(identifier),
+            properties = document.properties
             else { throw PersistenceError.NoSuchDocument }
-        guard let json = document.properties?["data"] as? JSON,
-            kindKey = document.properties?["kind"] as? String
-            else { throw PersistenceError.MalformedDocument(document: document.properties) }
+        guard let json = properties["data"] as? JSON,
+            kindKey = properties["kind"] as? String
+            else { throw PersistenceError.MalformedDocument(document: properties) }
         return try instantiate(identifier, kind: kindKey, json: json)
     }
     

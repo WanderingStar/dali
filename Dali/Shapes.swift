@@ -108,6 +108,13 @@ final class LazySquare : Persistable {
         self.persistence = persistence
         self.squareIdentifier = "square" <~~ json
     }
+    
+    var propertyMapping: [String : String?] {
+        var mapping = defaultPropertyMapping
+        mapping.updateValue(nil, forKey: "persistence")
+        mapping.updateValue(nil, forKey: "squareIdentifier")
+        return mapping
+    }
 }
 
 final class Chain : Persistable {
@@ -128,8 +135,6 @@ final class Chain : Persistable {
         self.next = try persistence.load("next" <~~ json)
     }
 }
-
-
 
 
 
